@@ -1,0 +1,28 @@
+<form class="container-sm mt-5 mb-5" id="myForm" method="post">
+  <fieldset>
+    <legend>Sign In</legend>
+    <input type="text" default="FormType1" hidden>
+    <div>
+      <label for="InputEmail1" class="form-label mt-4">Email address</label>
+      <input type="email" class="form-control" id="InputEmail1" aria-describedby="emailHelp" placeholder="Enter email" required>
+      <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+    </div>
+    <div>
+      <label for="InputPassword1" class="form-label mt-4">Password</label>
+      <input type="password" class="form-control" id="InputPassword1" placeholder="Password" autocomplete="off" required>
+    </div>
+    <div>
+      <label for="InputName1" class="form-label mt-4">Password</label>
+      <input type="text" class="form-control" id="InputName1" placeholder="Password" autocomplete="off" required>
+    </div>
+    <div>
+      <label for="Select1" class="form-label mt-4">Select User Type</label>
+      <select class="form-select" id="Select1">
+        <option>Admin</option>
+        <option>Teacher</option>
+        <option>Student</option>
+      </select>
+    </div>
+    <button class="btn btn-primary mt-2" type="button" onclick="SigningCredentials()">Enviar</button>
+  </fieldset>
+</form>

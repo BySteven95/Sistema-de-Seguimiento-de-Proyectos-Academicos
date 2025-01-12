@@ -1,0 +1,59 @@
+<script>
+
+    document.getElementById('header-navbar').addEventListener("click", navbarClicked);
+
+    function navbarClicked(e) {
+        if (e.target.matches('.nav-link') || e.target.matches('.menubuttons')) {
+            console.log(e.target.id);
+            activateNavbar(e.target.id);
+            searchContent(e.target.id)
+        }
+    }
+
+    function activateNavbar(navbarLinkId) {
+        const navLinks = document.querySelectorAll(".nav-link");
+        navLinks.forEach(navLink => {
+            navLink.classList.remove("active");
+        })
+        const activeNavLink = document.getElementById(navbarLinkId);
+        activeNavLink.classList.add('active');
+    }
+
+    function searchContent(page){
+        google.script.run.withSuccessHandler(HTMLContent =>{
+            document.getElementById('main-content').innerHTML = HTMLContent;
+        }).getHTMLContent(page);
+    }
+
+    function LoginCredentials(){
+        Email = document.getElementById('InputEmail2').value;
+        Password = document.getElementById('InputPassword2').value;
+        Answer = [Email, Password];
+        console.log(Answer);
+        return Answer;
+        
+    }
+
+
+    function SigningCredentials(){
+        Email = document.getElementById('InputEmail1').value;
+        Password = document.getElementById('InputPassword1').value;
+        Name = document.getElementById('InputName1').value;
+        UserType = document.getElementById('Select1').value;
+
+        Answer = [Email, Password, Name, UserType];
+        console.log(Answer);
+        return Answer;
+    }
+    
+    function LogIN(){
+        
+    }
+
+    function SignIN(){
+
+    }
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
