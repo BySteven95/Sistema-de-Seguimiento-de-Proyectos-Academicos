@@ -1,7 +1,7 @@
 const SHEET_ID = '1Jqx-vmuwSS85wj_4EFeHlo8zW3vMMSg76wmqsMKRz_Y';
 
 function doGet() {
-  const HTML = HtmlService.createTemplateFromFile('web')
+  const HTML = HtmlService.createTemplateFromFile('HTML/web')
   const output = HTML.evaluate();
   return output
 }
