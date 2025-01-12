@@ -1,3 +1,6 @@
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+
 <script>
 
     document.getElementById('header-navbar').addEventListener("click", navbarClicked);
@@ -6,7 +9,9 @@
         if (e.target.matches('.nav-link') || e.target.matches('.menubuttons')) {
             console.log(e.target.id);
             activateNavbar(e.target.id);
-            searchContent(e.target.id)
+            waitForElement('header-navbar', (element) => {
+                    searchMainContent(e.target.id)
+                }); 
         }
     }
 
@@ -19,41 +24,131 @@
         activeNavLink.classList.add('active');
     }
 
-    function searchContent(page){
+    function searchMainContent(page){
         google.script.run.withSuccessHandler(HTMLContent =>{
             document.getElementById('main-content').innerHTML = HTMLContent;
         }).getHTMLContent(page);
+    }   
+
+    function searchHeaderContent(page){
+        google.script.run.withSuccessHandler(HTMLContent =>{
+            document.getElementById('header-navbar').innerHTML = HTMLContent;
+        }).getHTMLContent(page);
+    }   
+
+    function CheckMail(email) {
+        const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regexCorreo.test(email);
+    }
+
+    function encryptData(data){
+        var encrypted = CryptoJS.AES.encrypt(data, "Secret Passphrase");
+
+        return encrypted.toString();
+    }
+
+    function decryptData(data){ 
+        var decrypted = CryptoJS.AES.decrypt(data, "Secret Passphrase");
+
+        return decrypted.toString(CryptoJS.enc.Utf8);
     }
 
     function LoginCredentials(){
+
         Email = document.getElementById('InputEmail2').value;
+
+        if (!CheckMail(Email)) {
+            alert("Please enter a valid email address");
+            return; 
+        }
+
         Password = document.getElementById('InputPassword2').value;
         Answer = [Email, Password];
-        console.log(Answer);
-        return Answer;
+        
+        return Answer;  
+    }
+
+    function SignInCheck(array) {
+        if (array) {
+            alert("User already exists");
+        } else {
+            alert("User successfully created");
+            searchMainContent('HTML/login_page');
+        }
+    }
+    
+    function LoginCheck(info){
+        console.log(info)
+        if (info) {
+            PasswordRecovered = decryptData(info[3]);
+            console.log(PasswordRecovered)
+            PasswordReceived = document.getElementById('InputPassword2').value;
+            console.log(info[1])
+            const name = info[1]
+            if (PasswordReceived == PasswordRecovered){
+                loadTemplate('user_web');
+                waitForElement('user_name', (element) => {
+                    element.textContent = name;
+                });
+            }else{
+                alert("Incorrect Password")
+            }
+            
+        } else {
+            alert("Oops! Something went wrong, try again");
+            searchMainContent('HTML/login_page');
+        }
         
     }
 
-
     function SigningCredentials(){
         Email = document.getElementById('InputEmail1').value;
+
+        if (!CheckMail(Email)) {
+            alert("Please enter a valid email address");
+            return; // Detener la ejecución si el correo no es válido
+        }
+
         Password = document.getElementById('InputPassword1').value;
         Name = document.getElementById('InputName1').value;
-        UserType = document.getElementById('Select1').value;
+        Password = encryptData(Password);
 
-        Answer = [Email, Password, Name, UserType];
-        console.log(Answer);
+        Answer = [Email, Password, Name];
+
         return Answer;
     }
     
     function LogIN(){
-        
+        data = LoginCredentials();
+        google.script.run.withSuccessHandler(LoginCheck).LoginProcedure(data);
     }
 
     function SignIN(){
+        data = SigningCredentials();
+        google.script.run.withSuccessHandler(SignInCheck).SigninProcedure(data);
 
     }
 
-</script>
+    function LogOut(){
+        loadTemplate('web');
+    }
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    function loadTemplate(templateName) {
+
+        google.script.run.withSuccessHandler(function (html) {
+
+          document.getElementById('content').innerHTML = html;
+        }).loadTemplate(templateName);
+      }
+      
+    const waitForElement = (id, callback) => {
+        const interval = setInterval(() => {
+            const element = document.getElementById(id);
+            if (element) {
+            clearInterval(interval);
+            callback(element);
+            }
+        }, 100);
+    };
+
+</script>   
