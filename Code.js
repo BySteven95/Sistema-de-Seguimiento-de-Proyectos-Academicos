@@ -8,9 +8,8 @@ function doGet() {
 
 function loadTemplate(templateName) {
   try {
-    // Carga el archivo HTML solicitado
     const html = HtmlService.createTemplateFromFile(`HTML/${templateName}`);
-    return html.evaluate().getContent(); // Devuelve el contenido HTML como cadena
+    return html.evaluate().getContent(); 
   } catch (e) {
     return `Error al cargar la plantilla: ${e.message}`;
   }
@@ -56,8 +55,12 @@ function LoginProcedure(UserInfo) {
 }
 
 function SigninProcedure(UserInfo) {
-  if(WhatIfExists(UserInfo[0])){
-    let array = GetUserInfo(UserInfo[0]);
+  if(WhatIfExists(UserInfo[0]) || WhatIfExists(UserInfo[2])){
+    if(WhatIfExists(UserInfo[0])){
+      array = GetUserInfo(UserInfo[0]);
+    }else{
+      array = GetUserInfo(UserInfo[2]);
+    }
     return array;
   } else {
     Email = UserInfo[0];
@@ -79,4 +82,34 @@ function saveToSheet(Email, Password, Name) {
   var ID = sheet.getLastRow();
   sheet.appendRow([ID, Name, Email, Password, "None"]);
 
+}
+
+function getTableData(type) {
+  const spreadsheet = SpreadsheetApp.openById(SHEET_ID);
+  const sheet = spreadsheet.getSheetByName(type); 
+  const data = sheet.getDataRange().getValues(); 
+  return data;
+}
+
+function generateTableHTML(type) {
+  const data = getTableData(type); 
+  let htmlTable = "<table class='table table-hover'>";
+
+  htmlTable += "<thead><tr>";
+  data[0].forEach(header => {
+    htmlTable += `<th>${header}</th>`;
+  });
+  htmlTable += "</tr></thead>";
+
+  htmlTable += "<tbody>";
+  for (let i = 1; i < data.length; i++) { 
+    htmlTable += "<tr class='table-dark'>";
+    data[i].forEach(cell => {
+      htmlTable += `<td>${cell}</td>`;
+    });
+    htmlTable += "</tr>";
+  }
+  htmlTable += "</tbody></table>";
+
+  return htmlTable; 
 }

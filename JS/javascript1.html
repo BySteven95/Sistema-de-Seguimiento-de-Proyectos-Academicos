@@ -7,10 +7,9 @@
 
     function navbarClicked(e) {
         if (e.target.matches('.nav-link') || e.target.matches('.menubuttons')) {
-            console.log(e.target.id);
             activateNavbar(e.target.id);
             waitForElement('header-navbar', (element) => {
-                    searchMainContent(e.target.id)
+                    searchMainContent(e.target.id) 
                 }); 
         }
     }
@@ -26,14 +25,38 @@
 
     function searchMainContent(page){
         google.script.run.withSuccessHandler(HTMLContent =>{
-            document.getElementById('main-content').innerHTML = HTMLContent;
+                document.getElementById('main-content').innerHTML = HTMLContent;
         }).getHTMLContent(page);
+
+        switch(page){
+            case "HTML/user_projects":
+                console.log(page)
+                showDashboards("Projects");
+                break;
+            case "HTML/user_tasks":
+                console.log(page)
+                showDashboards("Tasks");
+                break;
+            case "HTML/user_reports":
+                console.log(page)
+                showDashboards("Users");
+                break;
+            default:
+                console.warn("Página no reconocida:", page);
+                break;
+        }
+
     }   
 
     function searchHeaderContent(page){
         google.script.run.withSuccessHandler(HTMLContent =>{
-            document.getElementById('header-navbar').innerHTML = HTMLContent;
-        }).getHTMLContent(page);
+                document.getElementById('header-navbar').innerHTML = HTMLContent;
+            }).getHTMLContent(page);
+
+            waitForElement('user_name', (element) => {
+                    const name = localStorage.getItem("name");
+                    element.innerHTML = name;
+                });
     }   
 
     function CheckMail(email) {
@@ -78,15 +101,13 @@
     }
     
     function LoginCheck(info){
-        console.log(info)
         if (info) {
             PasswordRecovered = decryptData(info[3]);
-            console.log(PasswordRecovered)
             PasswordReceived = document.getElementById('InputPassword2').value;
-            console.log(info[1])
-            const name = info[1]
+            name = info[1]
             if (PasswordReceived == PasswordRecovered){
-                loadTemplate('user_web');
+                searchHeaderContent('HTML/user_navbar')
+                searchMainContent('HTML/user_home')
                 waitForElement('user_name', (element) => {
                     element.textContent = name;
                 });
@@ -98,6 +119,7 @@
             alert("Oops! Something went wrong, try again");
             searchMainContent('HTML/login_page');
         }
+        localStorage.setItem("name", name);
         
     }
 
@@ -106,7 +128,7 @@
 
         if (!CheckMail(Email)) {
             alert("Please enter a valid email address");
-            return; // Detener la ejecución si el correo no es válido
+            return; 
         }
 
         Password = document.getElementById('InputPassword1').value;
@@ -130,7 +152,8 @@
     }
 
     function LogOut(){
-        loadTemplate('web');
+        searchHeaderContent('HTML/navbar')
+        searchMainContent('HTML/home')
     }
 
     function loadTemplate(templateName) {
@@ -142,13 +165,29 @@
       }
       
     const waitForElement = (id, callback) => {
-        const interval = setInterval(() => {
+        let lastElement = null;
+
+        const interval = setInterval(() => {    
             const element = document.getElementById(id);
-            if (element) {
-            clearInterval(interval);
-            callback(element);
+
+            // Detectar si el elemento existe y es nuevo
+            if (element && element !== lastElement) {
+            lastElement = element; // Actualiza la referencia al elemento
+            callback(element); // Ejecuta el callback con el nuevo elemento
             }
-        }, 100);
+
+            // Si el elemento desaparece, reseteamos la referencia
+            if (!element) {
+                lastElement = null;
+            }
+        }, 1000); // Chequeo cada 200 ms
     };
 
+    function showDashboards(type) {
+        console.log(type)
+        type = type.toString();
+        google.script.run.withSuccessHandler((htmlTable) => {
+            document.getElementById('dashboard_info').innerHTML = htmlTable;
+        }).generateTableHTML(type); 
+    }
 </script>   
